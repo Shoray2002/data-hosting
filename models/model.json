@@ -197,13 +197,13 @@
   "weightsManifest": [
     {
       "paths": [
-        "https://github.com/Shoray2002/data-hosting/blob/master/models/group1-shard1of7.bin?raw=true",
-        "https://github.com/Shoray2002/data-hosting/blob/master/models/group1-shard2of7.bin?raw=true",
-        "https://github.com/Shoray2002/data-hosting/blob/master/models/group1-shard3of7.bin?raw=true",
-        "https://github.com/Shoray2002/data-hosting/blob/master/models/group1-shard4of7.bin?raw=true",
-        "https://github.com/Shoray2002/data-hosting/blob/master/models/group1-shard5of7.bin?raw=true",
-        "https://github.com/Shoray2002/data-hosting/blob/master/models/group1-shard6of7.bin?raw=true",
-        "https://github.com/Shoray2002/data-hosting/blob/master/models/group1-shard7of7.bin?raw=true"
+        "group1-shard1of7.bin",
+        "group1-shard2of7.bin",
+        "group1-shard3of7.bin",
+        "group1-shard4of7.bin",
+        "group1-shard5of7.bin",
+        "group1-shard6of7.bin",
+        "group1-shard7of7.bin"
       ],
       "weights": [
         {
