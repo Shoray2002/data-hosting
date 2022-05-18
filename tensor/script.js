@@ -3,14 +3,10 @@ const liveView = document.getElementById("liveView");
 const demosSection = document.getElementById("demos");
 const enableWebcamButton = document.getElementById("webcamButton");
 
-// Check if webcam access is supported.
 function getUserMediaSupported() {
   return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 }
 
-// If webcam supported, add event listener to button for when user
-// wants to activate it to call enableCam function which we will
-// define in the next step.
 if (getUserMediaSupported()) {
   enableWebcamButton.addEventListener("click", enableCam);
 } else {
@@ -22,10 +18,8 @@ function enableCam(event) {
   if (!model) {
     return;
   }
-
   // Hide the button once clicked.
   event.target.classList.add("removed");
-
   // getUsermedia parameters to force video but not audio.
   const constraints = {
     video: true,
@@ -44,12 +38,21 @@ async function loadModel() {
     "https://raw.githubusercontent.com/Shoray2002/data-hosting/master/models/model.json"
   );
   console.log("Model loaded!");
+  demosSection.classList.remove("invisible");
 }
 loadModel();
 
+var children = [];
 
-// var children = [];
-
+function predictWebcam() {
+  const frame = tf.browser.fromPixels(video);
+  // console.log(frame);
+  // alter frame to be a tensor of shape [1, height, width, 3]
+  const frameTensor = tf.tensor4d(64, 64, 64, 3);
+  const prediction = model.predict(frame);
+  console.log(prediction);
+  window.requestAnimationFrame(predictWebcam);
+}
 // function predictWebcam() {
 //   // Now let's start classifying a frame in the stream.
 //   model.detect(video).then(function (predictions) {
