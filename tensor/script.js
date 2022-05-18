@@ -2,7 +2,8 @@ const video = document.getElementById("webcam");
 const liveView = document.getElementById("liveView");
 const demosSection = document.getElementById("demos");
 const enableWebcamButton = document.getElementById("webcamButton");
-
+const canvas = document.getElementById("canvas");
+let ctx = canvas.getContext("2d");
 function getUserMediaSupported() {
   return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 }
@@ -33,76 +34,41 @@ function enableCam(event) {
 }
 
 var model = undefined;
-async function loadModel() {
-  model = await tf.loadLayersModel(
-    "https://raw.githubusercontent.com/Shoray2002/data-hosting/master/models/model.json"
-  );
-  console.log("Model loaded!");
+blazeface.load().then(function (loadedModel) {
+  model = loadedModel;
   demosSection.classList.remove("invisible");
-}
-loadModel();
+});
 
 var children = [];
+async function predictWebcam() {
+  const prediction = await model.estimateFaces(video, false);
+  ctx.drawImage(video, 0, 0, 640, 480);
+  prediction.forEach((pred) => {
+    if (pred.probability > 0.9) {
+      ctx.beginPath();
+      ctx.lineWidth = "4";
+      ctx.strokeStyle = "#ff6f00d9";
+      ctx.rect(
+        pred.topLeft[0],
+        pred.topLeft[1],
+        pred.bottomRight[0] - pred.topLeft[0],
+        pred.bottomRight[1] - pred.topLeft[1]
+      );
+      ctx.stroke();
+      ctx.fillStyle = "whitesmoke";
+      pred.landmarks.forEach((landmark) => {
+        ctx.fillRect(landmark[0], landmark[1], 5, 5);
+      });
 
-function predictWebcam() {
-  const frame = tf.browser.fromPixels(video);
-  // console.log(frame);
-  // alter frame to be a tensor of shape [1, height, width, 3]
-  const frameTensor = tf.tensor4d(64, 64, 64, 3);
-  const prediction = model.predict(frame);
-  console.log(prediction);
+      // display the probability
+      ctx.font = "24px Arial";
+      ctx.fillStyle = "whitesmoke";
+      ctx.fillText(
+        `${Math.round(pred.probability * 2000) / 20}%`,
+        pred.bottomRight[0]-80,
+        pred.bottomRight[1] - 10
+      );
+    }
+  });
   window.requestAnimationFrame(predictWebcam);
 }
-// function predictWebcam() {
-//   // Now let's start classifying a frame in the stream.
-//   model.detect(video).then(function (predictions) {
-//     // Remove any highlighting we did previous frame.
-//     for (let i = 0; i < children.length; i++) {
-//       liveView.removeChild(children[i]);
-//     }
-//     children.splice(0);
-
-//     // Now lets loop through predictions and draw them to the live view if
-//     // they have a high confidence score.
-//     for (let n = 0; n < predictions.length; n++) {
-//       // If we are over 66% sure we are sure we classified it right, draw it!
-//       if (predictions[n].score > 0.66) {
-//         const p = document.createElement("p");
-//         p.innerText =
-//           predictions[n].class +
-//           " - with " +
-//           Math.round(parseFloat(predictions[n].score) * 100) +
-//           "% confidence.";
-//         p.style =
-//           "margin-left: " +
-//           predictions[n].bbox[0] +
-//           "px; margin-top: " +
-//           (predictions[n].bbox[1] - 10) +
-//           "px; width: " +
-//           (predictions[n].bbox[2] - 10) +
-//           "px; top: 0; left: 0;";
-
-//         const highlighter = document.createElement("div");
-//         highlighter.setAttribute("class", "highlighter");
-//         highlighter.style =
-//           "left: " +
-//           predictions[n].bbox[0] +
-//           "px; top: " +
-//           predictions[n].bbox[1] +
-//           "px; width: " +
-//           predictions[n].bbox[2] +
-//           "px; height: " +
-//           predictions[n].bbox[3] +
-//           "px;";
-
-//         liveView.appendChild(highlighter);
-//         liveView.appendChild(p);
-//         children.push(highlighter);
-//         children.push(p);
-//       }
-//     }
-
-//     // Call this function again to keep predicting when the browser is ready.
-//     window.requestAnimationFrame(predictWebcam);
-//   });
-// }
